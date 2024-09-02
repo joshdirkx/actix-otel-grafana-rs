@@ -22,8 +22,17 @@ services:
     ports:
       - "4317:4317" # OTLP gRPC receiver
       - "55680:55680" # OpenTelemetry receiver
+      - "8888:8888" # Collector's own metrics
+      - "8889:8889" # Prometheus exporter
     depends_on:
       - loki
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yaml
+    ports:
+      - "9090:9090"
 
   loki:
     image: grafana/loki:2.9.0
@@ -51,6 +60,7 @@ services:
     depends_on:
       - otel-collector
       - loki
+      - prometheus
 
 volumes:
   grafana-storage:
