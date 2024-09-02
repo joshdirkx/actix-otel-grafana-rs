@@ -30,7 +30,7 @@ async fn main() -> std::io::Result<()> {
     // Set up OpenTelemetry Tracing
     let otlp_exporter = opentelemetry_otlp::new_exporter()
         .tonic()
-        .with_endpoint("http://localhost:4317");
+        .with_endpoint("http://tempo:4317");
 
     let tracer_provider = opentelemetry_otlp::new_pipeline()
         .tracing()
