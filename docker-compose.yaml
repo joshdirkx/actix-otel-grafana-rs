@@ -61,6 +61,18 @@ services:
       - otel-collector
       - loki
       - prometheus
+      - tempo
+
+  tempo:
+    image: grafana/tempo:latest
+    command: [ "-config.file=/etc/tempo.yaml" ]
+    volumes:
+      - ./tempo-config.yaml:/etc/tempo.yaml
+    ports:
+      - "3200:3200"  # tempo query frontend
+      - "4317"  # otlp grpc (internal, not exposed)
+      - "4318"  # otlp http (internal, not exposed)
+
 
 volumes:
   grafana-storage:

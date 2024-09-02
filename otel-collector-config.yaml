@@ -11,15 +11,18 @@ processors:
 
 exporters:
   logging:
-    loglevel: debug
-  otlp:
-    endpoint: "loki:3100"
+    verbosity: detailed
+    sampling_initial: 5
+    sampling_thereafter: 200
+  otlp/tempo:
+    endpoint: "tempo:4317"
     tls:
       insecure: true
   loki:
     endpoint: "http://loki:3100/loki/api/v1/push"
   prometheus:
     endpoint: "0.0.0.0:8889"
+    namespace: "actix_otel_rs"
 
 service:
   telemetry:
@@ -29,7 +32,7 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [logging, otlp]
+      exporters: [logging, otlp/tempo]
     metrics:
       receivers: [otlp]
       processors: [batch]

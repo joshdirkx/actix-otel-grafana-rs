@@ -8,6 +8,24 @@ datasources:
     jsonData:
       maxLines: 1000
 
+  - name: Tempo
+    type: tempo
+    access: proxy
+    url: http://tempo:3200
+    jsonData:
+      httpMethod: GET
+      tracesToLogs:
+        datasourceUid: 'Loki'
+        tags: [ 'job', 'instance', 'service.name', 'service.namespace' ]
+        mappedTags: [ { key: 'service.name', value: 'service' } ]
+        mapTagNamesEnabled: false
+        spanStartTimeShift: '-1h'
+        spanEndTimeShift: '1h'
+        filterByTraceID: false
+        filterBySpanID: false
+      serviceMap:
+        datasourceUid: 'Prometheus'
+
   - name: Prometheus
     type: prometheus
     access: proxy
