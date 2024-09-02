@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+#  app:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    ports:
+#      - "8080:8080"
+#    environment:
+#      OTEL_SERVICE_NAME: "actix-otel-rs"
+#      OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
+#      RUST_LOG: "info" # Enable logging
+#    depends_on:
+#      - otel-collector
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "4317:4317" # OTLP gRPC receiver
+      - "55680:55680" # OpenTelemetry receiver
+    depends_on:
+      - loki
+
+  loki:
+    image: grafana/loki:2.9.0
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki-config.yaml:/etc/loki/loki-config.yaml
+      - ./loki/boltdb-shipper-active:/tmp/loki/boltdb-shipper-active
+      - ./loki/boltdb-shipper-cache:/tmp/loki/boltdb-shipper-cache
+      - ./loki/boltdb-shipper-compactor:/tmp/loki/boltdb-shipper-compactor
+      - ./loki/chunks:/tmp/loki/chunks
+      - ./loki/wal:/tmp/loki/wal
+    command: -config.file=/etc/loki/loki-config.yaml
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./provisioning:/etc/grafana/provisioning
+    depends_on:
+      - otel-collector
+      - loki
+
+volumes:
+  grafana-storage:
