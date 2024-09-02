@@ -1,4 +1,4 @@
-use actix_web::{web, App, HttpServer, Responder};
+use actix_web::{web, App, HttpResponse, HttpServer, Responder};
 use opentelemetry::global;
 use opentelemetry::trace::{Tracer, TracerProvider};
 use opentelemetry_otlp::{WithExportConfig, ExportConfig};
@@ -30,7 +30,7 @@ async fn main() -> std::io::Result<()> {
     // Set up OpenTelemetry Tracing
     let otlp_exporter = opentelemetry_otlp::new_exporter()
         .tonic()
-        .with_endpoint("http://tempo:4317");
+        .with_endpoint("http://otel-collector:4317");
 
     let tracer_provider = opentelemetry_otlp::new_pipeline()
         .tracing()
@@ -60,6 +60,7 @@ async fn main() -> std::io::Result<()> {
             .route("/", web::get().to(index))
     })
     .bind("0.0.0.0:8080")?
-    .run()
+        .bind("0.0.0.0:8887")?  // Metrics endpoint
+        .run()
     .await
 }

@@ -16,7 +16,10 @@ RUN apk add --no-cache libgcc
 
 COPY --from=builder /usr/src/app/target/release/actix-otel-rs .
 
+# application port
 EXPOSE 8080
+# metrics port
+EXPOSE 8887
 
 ENV OTEL_SERVICE_NAME=actix-otel-rs
 ENV OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
